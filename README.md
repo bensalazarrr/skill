@@ -13,7 +13,7 @@ On every build, fix, or refactor request:
 3. Posts a five-line plan (files, risk tier, verify command) before editing
 4. Makes the smallest correct change, matching local style
 5. Verifies once, in proportion to risk
-6. Updates the map and reports `Changed / Verified / Not verified / Map`
+6. Updates the map and reports `Changed / Callers checked / Verified / Not verified / Map`
 
 The map is built once per repo (skipped entirely under ~25 source files) and improves with every task, so the cost of each session stays flat while the repo grows.
 
@@ -33,7 +33,7 @@ Clone **once per machine** into a folder that never moves — the agent reads it
 
 ### If your agent supports skills
 
-Put the folder where that agent looks, keeping the name `surgical-build`:
+Put the folder where that agent looks, keeping the name `surgical-build`. The folder name is the skill ID, and the frontmatter `name` must match it.
 
 | Agent | Skills folder |
 |---|---|
@@ -80,6 +80,12 @@ surgical-build/
 ```
 
 The scanner prunes dependency and build directories, caps its output, and lists what it pruned so generated folders stay visible. No shell? `SKILL.md` names the directories to skip so an agent can do the same by hand.
+
+On Windows, if execution policy blocks the script, add `-ExecutionPolicy Bypass`:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\scan-project.ps1 -Root .
+```
 
 ## Per-project artifact
 

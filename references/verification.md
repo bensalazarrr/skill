@@ -2,11 +2,15 @@
 
 Read this when the change is tier 1 (money, auth, dates, parsing, data writes, shared helpers), the stack is unfamiliar, or you need the scoped command for this project.
 
-## Stance
+## The rule
 
-Verify once, after the change is complete and coherent. Not test-first, not after every line. The goal is a landing check that catches a real mistake — not proof of correctness. A slow, broad suite run usually tells you less than one targeted check plus reading your own diff.
+Verify once, after the change is complete and coherent — not test-first, not after every line. This is a rule, not a preference: tests written before the implementation tend to assert the design you imagined, not the behavior you shipped. The one exception is reproducing a reported bug, where a failing test is how you prove you found the right cause.
 
-Suggested order: read the diff → typecheck → lint touched files → the relevant test → a smoke path for UI. Stop at the first failure and fix it; don't stack new output on a known-bad state.
+The goal is a landing check that catches a real mistake, not proof of correctness. A slow, broad suite usually tells you less than one targeted check plus reading your own diff.
+
+Order: read the diff → typecheck → lint touched files → the relevant test → a smoke path for UI. Stop at the first failure and fix it; don't stack new output on a known-bad state.
+
+**When in doubt, tier up.** A change sitting between tier 0 and tier 1 is tier 1. One focused test is cheaper than one missed edge case, every time.
 
 ## Tiers
 
@@ -67,6 +71,10 @@ Run more than the touched scope only for: a shared helper with many callers, a b
 - Table-driven when the logic is a parser or mapper.
 - For a bugfix: if you can't explain why the test failed on the old code, it isn't a regression test — delete it rather than keep a decorative one.
 - No snapshots for logic, no tests that assert an implementation detail a refactor would legitimately change.
+
+## Two strikes, then stop
+
+If the same check fails twice on the same change, stop and report: what you tried, the exact failure, and your best guess at the cause. Editing toward green turns a two-line fix into a fifty-line diff, and a second failure usually means the diagnosis is wrong rather than the code.
 
 ## Conflicts
 

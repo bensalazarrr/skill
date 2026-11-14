@@ -1,6 +1,13 @@
 ---
-name: Surgical Build
-description: Build, fix, or refactor code in an existing project using a pre-written repo map and a small context budget, with verification scaled to risk. Use this for any code change in an app or repository — adding a feature, field, screen, or endpoint; fixing a bug; refactoring; wiring an API; "make it work"; "extend this" — even when the user gives no file paths and no plan. Use it especially in unfamiliar or large repos, when an earlier attempt edited the wrong files, or when context is running low.
+name: surgical-build
+description: >-
+  Build, fix, or refactor code in an existing project using a pre-written repo
+  map and a small context budget, with verification scaled to risk. Use this for
+  any code change in an app or repository: adding a feature, field, screen, or
+  endpoint; fixing a bug; refactoring; wiring an API; "make it work"; "extend
+  this". Use it even when the user gives no file paths and no plan, especially in
+  unfamiliar or large repos, when an earlier attempt edited the wrong files, or
+  when context is running low.
 ---
 
 # Surgical Build
@@ -15,9 +22,11 @@ Paths below are relative to the folder that contains this file.
 
 1. Read the map first, then open only the files it points to.
 2. Plan before editing — five lines, not an essay.
-3. Exploration is budgeted; the actual work is not.
-4. Verify in proportion to risk, and never claim a result you did not see.
-5. Leave the map more accurate than you found it.
+3. Build first. Write tests only to pin behavior you just implemented, or to reproduce a reported bug before fixing it. A test written before the code tends to assert what you imagined rather than what you shipped.
+4. Exploration is budgeted; the actual work is not.
+5. Verify in proportion to risk. If a change sits between tier 0 and tier 1, treat it as tier 1 — one focused test costs less than one missed edge case.
+6. Never claim a result you did not see, and never add a test that could not have failed on the old code.
+7. Leave the map more accurate than you found it.
 
 ## Step 0 — get the map
 
@@ -80,6 +89,8 @@ Verify once, on the finished change. This is a landing check, not test-driven de
 
 Non-negotiables: quote real output rather than asserting success; a red check means fix it or report it, never "that should be fine"; don't run the whole suite to feel safe when a scoped run exists; don't edit a failing test you didn't cause — report it.
 
+Two-strike rule: when the same check fails twice on the same change, stop and report — what you tried, what it said, what you think is wrong. Do not keep editing toward green. That is how a small fix becomes a large diff, and a large diff is where the real mistakes hide.
+
 Read `references/verification.md` for tier-1 test rules, scoped commands per stack, and when widening is genuinely justified.
 
 ## Step 5 — close the loop
@@ -90,10 +101,13 @@ Then report exactly this:
 
 ```
 Changed: <path> — <what>
+Callers checked: <symbol> — <n call sites updated> / none
 Verified: <command> → <observed>
 Not verified: <item> (<why>)
 Map: updated (<n> lines) / unchanged
 ```
+
+`Callers checked` is the strictest line in the receipt. It forces you to name what a signature or behavior change touches, which catches more real mistakes than any test count.
 
 Empty "Not verified" is the goal, not a formality. If something wasn't checked, saying so costs one line and prevents a false sense of safety.
 
