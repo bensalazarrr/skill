@@ -74,7 +74,7 @@ Small repo (under ~25 source files): skip the map. An index costs more than work
 
 At the end of every task, cheaply:
 
-- `git status --porcelain` — paths only, never a full diff. Any changed path the map doesn't cover → add it, or generalize the directory line.
+- `git status --porcelain` — paths only, never a full diff. Any changed path the map doesn't cover → add it, or generalize the directory line. No git? List the files you touched, or use the host's recent-files view.
 - If the map names a file that no longer exists → correct or delete that line.
 - A command you had to dig for → add it to Commands. That's the highest-value line in the whole file, because it's the one that saves the most future tokens.
 

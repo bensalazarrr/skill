@@ -1,8 +1,8 @@
 # surgical-build
 
-An OpenCode skill for building features in a codebase **without scanning the repo** and **without skipping verification**.
+A portable agent skill for building features in a codebase **without scanning the repo** and **without skipping verification**.
 
-Most coding agents pay for the same discovery twice: they read half the repository to find the right file, then run a slow, broad test sweep to decide whether they're done. This skill replaces both with two cheaper things — an index and a landing check.
+Plain Markdown plus two shell scripts. No dependencies, no tool-specific features — it works with any coding agent that can read files and run a shell command.
 
 ## What it does
 
@@ -27,23 +27,43 @@ The map is built once per repo (skipped entirely under ~25 source files) and imp
 
 Strictness comes from honesty and blast-radius checks, not from test volume.
 
-## Install
+## Use with any agent
 
-Once per machine. Skills are not copied into projects.
+Clone **once per machine** into a folder that never moves — the agent reads it from there. Don't copy it into each project.
 
-```sh
-git clone https://github.com/bensalazarrr/skill.git ~/.config/opencode/skills/surgical-build
-```
+### If your agent supports skills
 
-On Windows (PowerShell):
+Put the folder where that agent looks, keeping the name `surgical-build`:
+
+| Agent | Skills folder |
+|---|---|
+| OpenCode | `~/.config/opencode/skills` |
+| Claude Code | `~/.claude/skills` |
+| Cursor, Codex, Copilot, Gemini CLI | varies by version — check that tool's docs |
 
 ```powershell
 git clone https://github.com/bensalazarrr/skill.git "$env:USERPROFILE\.config\opencode\skills\surgical-build"
 ```
 
-The **folder name** is the skill ID, so it must be `surgical-build`. OpenCode scans `~/.config/opencode/skills` automatically — no configuration needed. If a running session doesn't see it, run `/reload`.
+Already have a copy? Link instead of duplicating (no admin needed on Windows):
 
-Update with `git pull` in that folder.
+```powershell
+cmd /c mklink /J "%USERPROFILE%\.claude\skills\surgical-build" "%USERPROFILE%\.config\opencode\skills\surgical-build"
+```
+
+### If your agent has no skills support
+
+Add one line to that agent's **global** instruction file — `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, `~/.gemini/GEMINI.md`, or the global rules equivalent:
+
+```
+Before changing code, read <absolute-path>/surgical-build/SKILL.md and follow it.
+```
+
+Same behavior, minus automatic discovery.
+
+### If you want it in the project, not the machine
+
+Copy the folder to `.agent/skill/surgical-build/` and reference it with a **relative** path from the committed `AGENTS.md`, so teammates and CI get it too. Trade-off: each project's copy drifts.
 
 ## Layout
 
@@ -55,11 +75,11 @@ surgical-build/
 │   ├── verification.md       # tiers, scoped commands per stack, test rules
 │   └── recipes.md            # field / endpoint / screen / bugfix / refactor
 └── scripts/
-    ├── scan-project.ps1      # bounded scan (Windows)
-    └── scan-project.sh       # bounded scan (POSIX)
+    ├── scan-project.ps1      # bounded scan (any PowerShell)
+    └── scan-project.sh       # bounded scan (any POSIX shell)
 ```
 
-The scanner prunes dependency and build directories, caps its output, and then lists what it pruned so generated folders stay visible.
+The scanner prunes dependency and build directories, caps its output, and lists what it pruned so generated folders stay visible. No shell? `SKILL.md` names the directories to skip so an agent can do the same by hand.
 
 ## Per-project artifact
 

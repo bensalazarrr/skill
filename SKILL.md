@@ -7,6 +7,10 @@ description: Build, fix, or refactor code in an existing project using a pre-wri
 
 Two things dominate the cost of agent coding work: reading the repository, and being wrong. This skill attacks both. Pay for a map once, build against it forever, and spend verification where a mistake would actually hurt.
 
+This file is plain Markdown and uses no host-specific features. It works whether an agent loads it as a skill or reads it as a file referenced from `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, or a rules file. It assumes only two capabilities: reading and writing files, and running one shell command.
+
+Paths below are relative to the folder that contains this file.
+
 ## The contract
 
 1. Read the map first, then open only the files it points to.
@@ -17,11 +21,17 @@ Two things dominate the cost of agent coding work: reading the repository, and b
 
 ## Step 0 — get the map
 
-The map lives at `.agent/PROJECT_MAP.md` in the repo root.
+The map lives at `.agent/PROJECT_MAP.md` in the repo root. If your host hides or skips dot-directories, `docs/PROJECT_MAP.md` is equivalent — pick one and stay consistent.
 
 - **Exists** → read it. That's the entire discovery step.
 - **Missing, repo has fewer than ~25 source files** → skip the map and work directly. An index only pays for itself once finding a file costs more than reading the map. The scanner prints a file count, so this is a measurement, not a guess.
-- **Missing, real repo** → bootstrap it: run the scanner from the skill directory — `powershell -NoProfile -File <skill>/scripts/scan-project.ps1 -Root . -MaxFiles 150` on Windows, or `sh <skill>/scripts/scan-project.sh . 150` on POSIX — then read the manifests it names plus at most four entry points, and fill in the template from `references/repo-map.md`. Then say one line — "Built a coarse map at `.agent/PROJECT_MAP.md`; it will sharpen as we work" — and move on. Don't narrate the bootstrap.
+- **Missing, real repo** → bootstrap it: run the bundled scanner with whichever shell the machine has —
+  - `powershell -NoProfile -File <skill-dir>/scripts/scan-project.ps1 -Root . -MaxFiles 150`
+  - `sh <skill-dir>/scripts/scan-project.sh . 150`
+
+  No shell available? List files with the host's own file tools, skipping `node_modules`, `.git`, `dist`, `build`, `out`, `vendor`, `.venv`, `__pycache__`, `target`, `coverage`, `.next`, `.dart_tool`, `Pods`, `obj`, and `bin`.
+
+  Then read the manifests it names plus at most four entry points, and fill in the template from `references/repo-map.md`. Say one line — "Built a coarse map at `.agent/PROJECT_MAP.md`; it will sharpen as we work" — and move on. Don't narrate the bootstrap.
 
 A coarse map now beats a perfect map never. Mark unknowns with `?` and refine them the first time a task touches that area.
 
